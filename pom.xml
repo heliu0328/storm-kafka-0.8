@@ -4,16 +4,16 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>storm</groupId>
-    <artifactId>storm-kafka</artifactId>
+    <artifactId>storm-kafka08</artifactId>
     <packaging>jar</packaging>
     <version>${version.storm}</version>
     <name>storm-kafka</name>
     <description/>
 
     <properties>
-        <version.kafka>0.8.0-beta1</version.kafka>
+        <version.kafka>0.8.0</version.kafka>
         <version.scala>2.9.2</version.scala>
-        <version.storm>0.9.0-rc2</version.storm>
+        <version.storm>0.8.2</version.storm>
     </properties>
 
 
@@ -35,9 +35,19 @@
         <!--</testResources>-->
         <directory>target</directory>
         <outputDirectory>target/classes</outputDirectory>
-
         <plugins>
-            <plugin>
+        	<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>2.3.2</version>
+				<configuration>
+					<source>1.6</source>
+					<target>1.6</target>
+					<encoding>UTF-8</encoding>
+					<optimize>true</optimize>
+				</configuration>
+			</plugin>
+  <!--           <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>build-helper-maven-plugin</artifactId>
                 <version>1.7</version>
@@ -65,10 +75,21 @@
                         </configuration>
                     </execution>
                 </executions>
-            </plugin>
+            </plugin> -->
         </plugins>
     </build>
-
+	<distributionManagement>
+		<repository>
+			<id>release</id>
+			<name>ganji commons</name>
+			<url>http://10.1.64.180:8080/nexus/content/repositories/releases</url>
+		</repository>
+		<snapshotRepository>
+			<id>snapshot</id>
+			<name>ganji commons snapshot</name>
+			<url>http://10.1.64.180:8080/nexus/content/repositories/snapshots</url>
+		</snapshotRepository>
+	</distributionManagement>
     <repositories>
         <repository>
             <id>central</id>

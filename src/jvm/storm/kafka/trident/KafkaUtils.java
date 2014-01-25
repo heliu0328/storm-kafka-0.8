@@ -3,9 +3,9 @@ package storm.kafka.trident;
 import java.net.ConnectException;
 import java.util.*;
 
-import backtype.storm.metric.api.CombinedMetric;
-import backtype.storm.metric.api.IMetric;
-import backtype.storm.metric.api.ReducedMetric;
+//import backtype.storm.metric.api.CombinedMetric;
+//import backtype.storm.metric.api.IMetric;
+//import backtype.storm.metric.api.ReducedMetric;
 import com.google.common.collect.ImmutableMap;
 
 import backtype.storm.utils.Utils;
@@ -55,7 +55,7 @@ public class KafkaUtils {
     return ret;
   }
 
-  public static Map emitPartitionBatchNew(TridentKafkaConfig config, SimpleConsumer consumer,
+  /*public static Map emitPartitionBatchNew(TridentKafkaConfig config, SimpleConsumer consumer,
                                           GlobalPartitionId partition, TridentCollector collector,
                                           Map lastMeta, String topologyInstanceId,
                                           String topologyName,
@@ -116,7 +116,7 @@ public class KafkaUtils {
     newMeta.put("topic", config.topic);
     newMeta.put("topology", ImmutableMap.of("name", topologyName, "id", topologyInstanceId));
     return newMeta;
-  }
+  }*/
 
   public static void emit(TridentKafkaConfig config, TridentCollector collector, Message msg) {
     Iterable<List<Object>> values =
@@ -129,7 +129,8 @@ public class KafkaUtils {
   }
 
 
-  public static class KafkaOffsetMetric implements IMetric {
+  public static class KafkaOffsetMetric {
+	 // public static class KafkaOffsetMetric implements IMetric {
 
     Map<GlobalPartitionId, Long> _partitionToOffset = new HashMap<GlobalPartitionId, Long>();
     Set<GlobalPartitionId> _partitions;
@@ -145,7 +146,6 @@ public class KafkaUtils {
       _partitionToOffset.put(partition, offset);
     }
 
-    @Override
     public Object getValueAndReset() {
       try {
         long totalSpoutLag = 0;

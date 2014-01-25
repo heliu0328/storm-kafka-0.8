@@ -1,33 +1,21 @@
 package storm.kafka;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
-import backtype.storm.LocalCluster;
-import backtype.storm.StormSubmitter;
-import backtype.storm.generated.ClusterSummary;
-import backtype.storm.generated.Nimbus;
-import backtype.storm.generated.NotAliveException;
-import backtype.storm.generated.StormTopology;
-import backtype.storm.generated.TopologyInfo;
-import backtype.storm.metric.api.*;
-import backtype.storm.spout.SchemeAsMultiScheme;
-import backtype.storm.task.IMetricsContext;
+import kafka.message.Message;
 
-import org.apache.thrift7.TException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import storm.kafka.PartitionManager.KafkaMessageId;
 import backtype.storm.Config;
 import backtype.storm.spout.SpoutOutputCollector;
 import backtype.storm.task.TopologyContext;
 import backtype.storm.topology.OutputFieldsDeclarer;
-import backtype.storm.topology.TopologyBuilder;
 import backtype.storm.topology.base.BaseRichSpout;
-import backtype.storm.utils.NimbusClient;
-import backtype.storm.utils.Utils;
-import kafka.message.Message;
-import storm.kafka.PartitionManager.KafkaMessageId;
-import storm.kafka.trident.KafkaUtils;
 
 // TODO: need to add blacklisting
 // TODO: need to make a best effort to not re-emit messages if don't have to
@@ -99,7 +87,7 @@ public class KafkaSpout extends BaseRichSpout {
                             totalTasks, _uuid);
     }
 
-    context.registerMetric("kafkaOffset", new IMetric() {
+   /* context.registerMetric("kafkaOffset", new IMetric() {
       KafkaUtils.KafkaOffsetMetric
           _kafkaOffsetMetric =
           new KafkaUtils.KafkaOffsetMetric(_spoutConfig.topic, _connections);
@@ -117,9 +105,9 @@ public class KafkaSpout extends BaseRichSpout {
         }
         return _kafkaOffsetMetric.getValueAndReset();
       }
-    }, 60);
+    }, 60);*/
 
-    context.registerMetric("kafkaPartition", new IMetric() {
+    /*context.registerMetric("kafkaPartition", new IMetric() {
       @Override
       public Object getValueAndReset() {
         List<PartitionManager> pms = _coordinator.getMyManagedPartitions();
@@ -129,7 +117,7 @@ public class KafkaSpout extends BaseRichSpout {
         }
         return concatMetricsDataMaps;
       }
-    }, 60);
+    }, 60);*/
   }
 
   @Override

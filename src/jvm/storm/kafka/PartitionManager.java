@@ -1,13 +1,12 @@
 package storm.kafka;
 
-import backtype.storm.Config;
-import backtype.storm.metric.api.*;
-import backtype.storm.spout.SpoutOutputCollector;
-import backtype.storm.utils.Utils;
-
-import com.google.common.collect.ImmutableMap;
-
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import kafka.api.FetchRequest;
 import kafka.api.FetchRequestBuilder;
@@ -27,7 +26,12 @@ import org.slf4j.LoggerFactory;
 import storm.kafka.KafkaSpout.EmitState;
 import storm.kafka.KafkaSpout.MessageAndRealOffset;
 import storm.kafka.trident.KafkaUtils;
-import storm.kafka.trident.MaxMetric;
+import backtype.storm.Config;
+import backtype.storm.spout.SpoutOutputCollector;
+import backtype.storm.utils.Utils;
+
+import com.google.common.collect.ImmutableMap;
+//import backtype.storm.metric.api.*;
 
 public class PartitionManager {
 
@@ -35,10 +39,10 @@ public class PartitionManager {
 
   List<HostPort> replicaBrokers = new ArrayList<HostPort>();
 
-  private final CombinedMetric _fetchAPILatencyMax;
+/*  private final CombinedMetric _fetchAPILatencyMax;
   private final ReducedMetric _fetchAPILatencyMean;
   private final CountMetric _fetchAPICallCount;
-  private final CountMetric _fetchAPIMessageCount;
+  private final CountMetric _fetchAPIMessageCount;*/
 
   static class KafkaMessageId {
 
@@ -110,10 +114,10 @@ public class PartitionManager {
     LOG.info("Starting Kafka {} from offset {}", partitionId, _committedTo);
     _emittedToOffset = _committedTo;
 
-    _fetchAPILatencyMax = new CombinedMetric(new MaxMetric());
+   /* _fetchAPILatencyMax = new CombinedMetric(new MaxMetric());
     _fetchAPILatencyMean = new ReducedMetric(new MeanReducer());
     _fetchAPICallCount = new CountMetric();
-    _fetchAPIMessageCount = new CountMetric();
+    _fetchAPIMessageCount = new CountMetric();*/
   }
 
   public long getLastOffset(SimpleConsumer consumer, String topic, int partition,
@@ -140,16 +144,16 @@ public class PartitionManager {
 
   public Map getMetricsDataMap() {
     Map ret = new HashMap();
-    ret.put(partitionId + "/fetchAPILatencyMax", _fetchAPILatencyMax.getValueAndReset());
+    /*ret.put(partitionId + "/fetchAPILatencyMax", _fetchAPILatencyMax.getValueAndReset());
     ret.put(partitionId + "/fetchAPILatencyMean", _fetchAPILatencyMean.getValueAndReset());
     ret.put(partitionId + "/fetchAPICallCount", _fetchAPICallCount.getValueAndReset());
-    ret.put(partitionId + "/fetchAPIMessageCount", _fetchAPIMessageCount.getValueAndReset());
+    ret.put(partitionId + "/fetchAPIMessageCount", _fetchAPIMessageCount.getValueAndReset());*/
     return ret;
   }
 
   //returns false if it's reached the end of current batch
   public EmitState next(SpoutOutputCollector collector) {
-    if (_waitingToEmit.isEmpty()) {
+    if (_waitingToEmit.isEmpty() && _pending.isEmpty()) {
       int numOfError = 0;
 
       // TODO: property number.retry
@@ -228,10 +232,10 @@ public class PartitionManager {
     int numMessages = messageAndOffsets.sizeInBytes();
     long end = System.nanoTime();
     long millis = (end - start) / 1000000;
-    _fetchAPILatencyMax.update(millis);
+    /*_fetchAPILatencyMax.update(millis);
     _fetchAPILatencyMean.update(millis);
     _fetchAPICallCount.incr();
-    _fetchAPIMessageCount.incrBy(numMessages);
+    _fetchAPIMessageCount.incrBy(numMessages);*/
 
     if (numMessages > 0) {
       LOG.info("Fetched {} byte messages from Kafka: {}", numMessages, partitionId);
