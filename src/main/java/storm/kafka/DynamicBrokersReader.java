@@ -9,8 +9,12 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+
+import org.json.simple.JSONObject;
+import org.json.simple.JSONValue;
 
 public class DynamicBrokersReader {
     
@@ -48,20 +52,19 @@ public class DynamicBrokersReader {
 
             for(String c: children) {
                 try {
-                    byte[] numPartitionsData = _curator.getData().forPath(topicBrokersPath + "/" + c);
-                    byte[] hostPortData = _curator.getData().forPath(brokerInfoPath + "/" + c);
-
-
-
-                    HostPort hp = getBrokerHost(hostPortData);
-                    int numPartitions = getNumPartitions(numPartitionsData);
-                    List info = new ArrayList();
-                    info.add((long)hp.port);
-                    info.add((long)numPartitions);
-                    ret.put(hp.host, info);
-                    
+                    List<String> numPartitionsDatas = _curator.getChildren().forPath(topicBrokersPath + "/" + c);
+                    List<Integer> numPartitions = getNumPartitions(numPartitionsDatas);
+                    for(Integer numpartition : numPartitions) {
+                    	byte[] hostPortData = _curator.getData().forPath(brokerInfoPath + "/" + numpartition);
+                    	HostPort hp = getBrokerHost(hostPortData);
+                    	List<Object> info = new ArrayList<Object>();
+                    	info.add((long)hp.port);
+                    	info.add(numpartition);
+                    	
+                    	ret.put(hp.host, info);
+                    }
                 } catch(org.apache.zookeeper.KeeperException.NoNodeException e) {
-
+                	e.printStackTrace();
                 }
             }
         } catch(Exception e) {
@@ -74,18 +77,35 @@ public class DynamicBrokersReader {
         _curator.close();
     }
     
-    private static HostPort getBrokerHost(byte[] contents) {
+    protected static HostPort getBrokerHost(byte[] contents) {
         try {
-            String[] hostString = new String(contents, "UTF-8").split(":");
+/*            String[] hostString = new String(contents, "UTF-8").split(":");
             String host = hostString[hostString.length - 2];
-            int port = Integer.parseInt(hostString[hostString.length - 1]);
+            int port = Integer.parseInt(hostString[hostString.length - 1]);*/
+        	
+        	JSONObject json = (JSONObject) JSONValue.parse(new String(contents,"UTF-8"));
+        	
+        	String host = json.get("host").toString();
+        	int port = Integer.parseInt(json.get("port").toString());
             return new HostPort(host, port);
-        } catch (UnsupportedEncodingException e) {
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
-    }  
+    } 
     
-    private static int getNumPartitions(byte[] contents) {
+    protected static List<Integer> getNumPartitions(List<String> partitions) {
+    	List<Integer> intPartitions = new LinkedList<Integer>();
+        try {
+        	for(String partition : partitions) {
+        		intPartitions.add(Integer.parseInt(partition));
+        	}
+            return intPartitions;           
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    } 
+    
+    protected static int getNumPartitions(byte[] contents) {
         try {
             return Integer.parseInt(new String(contents, "UTF-8"));            
         } catch (UnsupportedEncodingException e) {
